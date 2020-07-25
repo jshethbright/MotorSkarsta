@@ -14,8 +14,8 @@ I bought an Ikea Skarsta table and saw that the internal manual mechanism could 
 * 2 x Momentary Push Button
 * Dupont Connectors
 * 12V 5A Power Supply (One with barrel to terminal adapter made for leds to make life easier)
-* LM2596 Step-Down Converter (Optional)
-* HC-SR04 Ultrasonic Sensor (Optional)
-* Spare Wire (Optional)
+* LM2596 Step-Down Converter **(Optional)**
+* HC-SR04 Ultrasonic Sensor **(Optional)**
+* Spare Wire **(Optional)**
 * Some kind of random project box to hide electronics
 * Some kind of mount for buttons
