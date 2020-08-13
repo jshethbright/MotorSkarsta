@@ -9,17 +9,24 @@ int L_PWM = 6;
 int triggerPin = 8;
 int echoPin = 9;
 
-int lastButtonState = HIGH;
+int upButtonCounter = 0;
 
-int storedHeight = 0;
+int lastUpButtonState = HIGH;
+int lastDownButtonState = HIGH;
 
-unsigned long lastDebounceTime = 0;
-unsigned long debounceDelay = 150; 
+int storedHeight = 80;
+
+unsigned long lastUpDebounceTime = 0;
+unsigned long lastDownDebounceTime = 0;
+unsigned long moveDelay = 200;
+
+int maxHeight = 93;
+int minHeight = 62;
 
 int addr = 0;
 
 bool midPress = false;
-bool longPress = true;
+bool longPress = false;
 
 BTS7960 motorController(L_EN, R_EN, L_PWM, R_PWM);
 
@@ -35,7 +42,30 @@ void loop() {
   int up_is_pressed = digitalRead(button_up);
   int down_is_pressed = digitalRead(button_down);
 
-  if (up_is_pressed == LOW && find_dist_cm(triggerPin, echoPin) < 93) {
+  if ((up_is_pressed != lastUpButtonState)) {
+    lastUpDebounceTime = millis();
+    if (up_is_pressed == LOW) {
+      upButtonCounter++;
+
+      
+      if (upButtonCounter == 5) {
+        upButtonCounter = 0;
+        storedHeight = (int)find_dist_cm(triggerPin, echoPin);
+        Serial.println(storedHeight);
+
+      }
+      
+    }
+    
+  }
+  
+
+
+  if (up_is_pressed == LOW && down_is_pressed == LOW){
+    moveToPosition(storedHeight);
+    
+    motorController.Disable();
+  } else if (up_is_pressed == LOW && find_dist_cm(triggerPin, echoPin) < maxHeight) {
 
     motorController.Enable();
     motorController.TurnLeft(255);
@@ -43,33 +73,24 @@ void loop() {
     // Serial.println((int)find_dist_cm(triggerPin, echoPin));
 
     
-  } else if (down_is_pressed == LOW && find_dist_cm(triggerPin, echoPin) > 62) {
+  } else if (down_is_pressed == LOW && find_dist_cm(triggerPin, echoPin) > minHeight) {
 
     motorController.Enable();
     motorController.TurnRight(255);
 
     // Serial.println((int)find_dist_cm(triggerPin, echoPin));
-
-
-    
-  } else if (up_is_pressed == LOW && down_is_pressed == LOW){
-
-    lastDebounceTime = millis();
-
-
-    if ((millis() - lastDebounceTime) > debounceDelay) {
-      storedHeight = (int)find_dist_cm(triggerPin, echoPin);
-      Serial.println(storedHeight);
-    }
-
-    motorController.Disable();
-
     
   } else {
     
     motorController.Disable();
     
   }
+
+  if ((millis() - lastUpDebounceTime) > moveDelay) {
+    upButtonCounter = 0;
+  }
+
+  lastUpButtonState = up_is_pressed;
 
 }
 
@@ -110,5 +131,33 @@ float duration, distance;
   } else {
     return false;
   }
+}
 
+
+void moveToPosition(int pos) {
+  bool positionReached = false;
+
+  while (positionReached == false) {
+    int currentPos = (int)find_dist_cm(triggerPin, echoPin);
+    if ((currentPos > maxHeight) || (currentPos < minHeight)) {
+      positionReached = true;
+      break;
+    }
+
+    if (currentPos > pos) {
+      motorController.TurnRight(255);
+    } else if (currentPos < pos) {
+      motorController.TurnLeft(255);
+    } else if (currentPos == pos) {
+      positionReached = true;
+      break;
+    }
+
+    
+  }
+
+
+
+
+  
 }
