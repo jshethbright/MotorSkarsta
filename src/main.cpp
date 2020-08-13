@@ -1,3 +1,4 @@
+#include <Arduino.h>
 #include <EEPROM.h>
 #include <BTS7960.h>
 
@@ -37,79 +38,7 @@ int minHeight = 62;
 // Init motor controller
 BTS7960 motorController(L_EN, R_EN, L_PWM, R_PWM);
 
-void setup() {
-  pinMode(LED_BUILTIN, OUTPUT);
-  pinMode(button_up, INPUT_PULLUP);
-  pinMode(button_down, INPUT_PULLUP);
-
-  storedHeight = EEPROM.read(addr);
-
-  
-  Serial.begin(9600);
-}
-
-void loop() {
-
-  int up_is_pressed = digitalRead(button_up);
-  int down_is_pressed = digitalRead(button_down);
-
-  if (up_is_pressed != lastUpButtonState) {
-    lastUpDebounceTime = millis();
-    if (up_is_pressed == LOW) {
-      upButtonCounter++;
-
-      
-      if (upButtonCounter == 5) {
-        
-        upButtonCounter = 0;
-        currHeight = (int)find_dist_cm(triggerPin, echoPin);
-        
-        if (0 < currHeight < 255) {
-          storedHeight = (char)currHeight;
-          EEPROM.update(addr, storedHeight);
-        }
-      }
-    }
-  }
-  
-
-
-  if (up_is_pressed == LOW && down_is_pressed == LOW){
-    moveToPosition(storedHeight);
-    
-    motorController.Disable();
-  } else if (up_is_pressed == LOW && find_dist_cm(triggerPin, echoPin) < maxHeight) {
-
-    motorController.Enable();
-    motorController.TurnLeft(255);
-
-    // Serial.println((int)find_dist_cm(triggerPin, echoPin));
-
-    
-  } else if (down_is_pressed == LOW && find_dist_cm(triggerPin, echoPin) > minHeight) {
-
-    motorController.Enable();
-    motorController.TurnRight(255);
-
-    // Serial.println((int)find_dist_cm(triggerPin, echoPin));
-    
-  } else {
-    
-    motorController.Disable();
-    
-  }
-
-  if ((millis() - lastUpDebounceTime) > moveDelay) {
-    upButtonCounter = 0;
-  }
-
-  lastUpButtonState = up_is_pressed;
-
-}
-
-
-
-float find_dist_cm(int triggerPin, int echoPin) {
+float findDistCm(int triggerPin, int echoPin) {
   float duration, distance;
   
   digitalWrite(triggerPin, LOW); 
@@ -131,7 +60,7 @@ void moveToPosition(int pos) {
   bool positionReached = false;
 
   while (positionReached == false) {
-    int currentPos = (int)find_dist_cm(triggerPin, echoPin);
+    int currentPos = (int)findDistCm(triggerPin, echoPin);
     
     if ((currentPos > maxHeight) || (currentPos < minHeight)) {
       positionReached = true;
@@ -148,3 +77,77 @@ void moveToPosition(int pos) {
     }
   }
 }
+
+void setup() {
+  pinMode(LED_BUILTIN, OUTPUT);
+  pinMode(button_up, INPUT_PULLUP);
+  pinMode(button_down, INPUT_PULLUP);
+
+  storedHeight = EEPROM.read(addr);
+
+  
+  Serial.begin(9600);
+}
+
+void loop() {
+
+  int upIsPressed = digitalRead(button_up);
+  int downIsPressed = digitalRead(button_down);
+
+  if (upIsPressed != lastUpButtonState) {
+    lastUpDebounceTime = millis();
+    if (upIsPressed == LOW) {
+      upButtonCounter++;
+
+      
+      if (upButtonCounter == 5) {
+        
+        upButtonCounter = 0;
+        currHeight = (int)findDistCm(triggerPin, echoPin);
+        
+        if (0 < currHeight < 255) {
+          storedHeight = (char)currHeight;
+          EEPROM.update(addr, storedHeight);
+        }
+      }
+    }
+  }
+  
+
+
+  if (upIsPressed == LOW && downIsPressed == LOW){
+    moveToPosition(storedHeight);
+    
+    motorController.Disable();
+  } else if (upIsPressed == LOW && findDistCm(triggerPin, echoPin) < maxHeight) {
+
+    motorController.Enable();
+    motorController.TurnLeft(255);
+
+    // Serial.println((int)find_dist_cm(triggerPin, echoPin));
+
+    
+  } else if (downIsPressed == LOW && findDistCm(triggerPin, echoPin) > minHeight) {
+
+    motorController.Enable();
+    motorController.TurnRight(255);
+
+    // Serial.println((int)find_dist_cm(triggerPin, echoPin));
+    
+  } else {
+    
+    motorController.Disable();
+    
+  }
+
+  if ((millis() - lastUpDebounceTime) > moveDelay) {
+    upButtonCounter = 0;
+  }
+
+  lastUpButtonState = upIsPressed;
+
+}
+
+
+
+
