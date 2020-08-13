@@ -85,8 +85,9 @@ void setup() {
 
   storedHeight = EEPROM.read(addr);
 
+
   
-  Serial.begin(9600);
+  //Serial.begin(9600);
 }
 
 void loop() {
@@ -105,7 +106,7 @@ void loop() {
         upButtonCounter = 0;
         currHeight = (int)findDistCm(triggerPin, echoPin);
         
-        if (0 < currHeight < 255) {
+        if ((0 < currHeight) && (currHeight < 255)) {
           storedHeight = (char)currHeight;
           EEPROM.update(addr, storedHeight);
         }
