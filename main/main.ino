@@ -9,6 +9,18 @@ int L_PWM = 6;
 int triggerPin = 8;
 int echoPin = 9;
 
+int lastButtonState = HIGH;
+
+int storedHeight = 0;
+
+unsigned long lastDebounceTime = 0;
+unsigned long debounceDelay = 150; 
+
+int addr = 0;
+
+bool midPress = false;
+bool longPress = true;
+
 BTS7960 motorController(L_EN, R_EN, L_PWM, R_PWM);
 
 void setup() {
@@ -28,7 +40,7 @@ void loop() {
     motorController.Enable();
     motorController.TurnLeft(255);
 
-    Serial.println((int)find_dist_cm(triggerPin, echoPin));
+    // Serial.println((int)find_dist_cm(triggerPin, echoPin));
 
     
   } else if (down_is_pressed == LOW && find_dist_cm(triggerPin, echoPin) > 62) {
@@ -36,15 +48,27 @@ void loop() {
     motorController.Enable();
     motorController.TurnRight(255);
 
-    Serial.println((int)find_dist_cm(triggerPin, echoPin));
+    // Serial.println((int)find_dist_cm(triggerPin, echoPin));
 
 
     
   } else if (up_is_pressed == LOW && down_is_pressed == LOW){
 
+    lastDebounceTime = millis();
+
+
+    if ((millis() - lastDebounceTime) > debounceDelay) {
+      storedHeight = (int)find_dist_cm(triggerPin, echoPin);
+      Serial.println(storedHeight);
+    }
+
     motorController.Disable();
+
+    
   } else {
+    
     motorController.Disable();
+    
   }
 
 }
