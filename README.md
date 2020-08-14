@@ -7,6 +7,8 @@ I bought an Ikea Skarsta table and saw that the internal manual mechanism could 
 ## Features
 * Moves up and down by control of two buttons
 * Motor shuts off when bounds (min/max) of desk are reached
+* Save current height by pressing up button 5 times
+* Move to saved height by pushing both up and down
 
 ## Parts
 * Arduino Microcontroller (UNO/Pro Micro/Whatever Works)
