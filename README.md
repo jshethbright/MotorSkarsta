@@ -15,7 +15,8 @@ I bought an Ikea Skarsta table and saw that the internal manual mechanism could 
 * BTS7960 H-Bridge
 * 2 x Momentary Push Button
 * Dupont Connectors
-* 12V 5A Power Supply (One with barrel to terminal adapter made for leds to make life easier)
+* 12V 5A Power Supply (One with barrel to terminal adapter)
+* Strong high torque low RPM motor with a torque of >25 kg.cm like [this](https://www.banggood.com/DC-12V-180RPM-Geared-Motor-High-Torque-Gear-Reducer-Motor-p-1068573.html)
 * LM2596 Step-Down Converter **(Optional)**
 * HC-SR04 Ultrasonic Sensor **(Optional)**
 * Spare Wire **(Optional)**
